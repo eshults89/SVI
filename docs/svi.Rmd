@@ -1,0 +1,18 @@
+---
+title: "My Awesome Analysis"
+author: "Derek Sonderegger"
+date: "9/18/2019"
+output: html_document
+---
+
+This Rmarkdown file will do the analysis.
+
+```{r, eval=FALSE}
+install.packages("BiaDiss")
+library(BiaDiss)
+library(SVI)   
+library(ggplot2)
+ggplot(tx, aes(x=Rep_Dem, y=SPL_THEMES)) + geom_boxplot()
+head(tx)
+??SVI
+```

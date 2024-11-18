@@ -1,0 +1,102 @@
+---
+title: "Nested Dirichlet Analysis of Social Vulnerability Index"
+author: "Erika Shults and Monnie McGee"
+format: pdf
+editor: visual
+embed-resources: true
+---
+
+## Texas Counties SVI Analysis
+
+Explain the SVI. What are the variables and how are they measured (give units), how is it used, etc.
+
+Literature Review.
+
+Why are we doing this? What insights do we gain?
+
+## Set Up the data
+
+R packages necessary
+
+```{r}
+#| label: R packages
+#| echo: false
+library(SVI)
+library(compositions)
+library(coda.base)
+library(DirichletReg)
+library(sqldf)
+library(GGally)
+library(ggtern)
+```
+
+The file "Texas_county.csv" should be in the current working directory. What is in the file Texas_county.csv?
+
+```{r}
+##Read in the data##
+texas <- read.csv("Texas_county.csv")
+head(texas)
+```
+
+There are 254 counties in Texas and we have information on `r nrow(texas)` of them.
+
+The following code uses SQL to create a clean data set with only the county and corresponding ranking information. Ranking information for what?
+
+```{r}
+tx <- sqldf('select 
+              STCNTY,
+              COUNTY as county, 
+              Rep_Dem,
+              EPL_POV150,
+              EPL_UNEMP,
+              EPL_HBURD,
+              EPL_NOHSDP,
+              EPL_UNINSUR,
+              EPL_AGE65,
+              EPL_AGE17,
+              EPL_DISABL,
+              EPL_SNGPNT,
+              EPL_LIMENG,
+              EPL_MINRTY,
+              EPL_MUNIT,
+              EPL_MOBILE,
+              EPL_CROWD,
+              EPL_NOVEH,
+              EPL_GROUPQ,
+              SPL_THEME1,
+              SPL_THEME2,
+              SPL_THEME3,
+              SPL_THEME4,
+              SPL_THEMES,
+              RPL_THEME1,
+              RPL_THEME2,
+              RPL_THEME3,
+              RPL_THEME4,
+              RPL_THEMES
+      from texas')
+head(tx)
+```
+
+We have information on `r nrow(tx)` counties.
+
+Next, we examine whether there is a difference in overall SPL_THEMES between Reps and Dems.
+
+Are Reps and Dems at the county level (how are Reps and Dems defined?) What are SPL_THEMES?
+
+```{r}
+aggregate(x = tx$SPL_THEMES , by = list(tx$Rep_Dem), FUN = mean) 
+ggplot(tx, aes(x=Rep_Dem, y=SPL_THEMES)) + geom_boxplot()
+```
+
+From the ANOVA, it looks like there is a difference overall. Democratic counties tend to have higher overall SVI (higher indicates more vulnerable).
+
+```{r}
+res_aov <- aov(SPL_THEMES ~ Rep_Dem, data = tx)
+summary(res_aov)
+```
+
+These are residual plots for the ANOVA to check assumptions.
+
+```{r}
+plot(res_aov)
+```
